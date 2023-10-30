@@ -27,9 +27,13 @@ def decrypt_data(encrypted_data, key):
     return decrypted_data
 
 def save_password():
-    website = website_entry.get()
-    username = username_entry.get()
-    password = password_entry.get()
+    website = website_entry.get().strip()
+    username = username_entry.get().strip()
+    password = password_entry.get().strip()
+
+    if not (website and username and password):
+        messagebox.showwarning("Empty Fields", "Please fill in all fields to save the password.")
+        return
 
     data = {'Website': website, 'Username': username, 'Password': password}
     
@@ -52,6 +56,7 @@ def save_password():
     
     messagebox.showinfo("Success", "Password saved successfully!")
 
+
 def retrieve_passwords():
     key = load_key()
     try:
@@ -59,14 +64,25 @@ def retrieve_passwords():
             data = file.read()
             passwords = json.loads(data)
             decrypted_passwords = [decrypt_data(password.encode(), key) for password in passwords]
-            password_tab = ttk.Frame(notebook)
-            notebook.add(password_tab, text='Passwords')
 
-            text_widget = tk.Text(password_tab)
-            text_widget.pack()
-            text_widget.insert(tk.END, "\n".join(decrypted_passwords))
+            for i in range(notebook.index('end')):
+                tab = notebook.nametowidget(notebook.tabs()[i])
+                if notebook.tab(tab, "text") == "Passwords":
+                    notebook.forget(tab)
+                    return
+            else:
+                create_password_tab(decrypted_passwords)
+
     except FileNotFoundError:
         messagebox.showinfo("No Passwords", "No passwords stored yet.")
+
+def create_password_tab(decrypted_passwords):
+    password_tab = ttk.Frame(notebook)
+    notebook.add(password_tab, text='Passwords')
+    text_widget = tk.Text(password_tab)
+    text_widget.pack()
+    text_widget.insert(tk.END, "\n".join(decrypted_passwords))
+
 
 root = tk.Tk()
 root.title("Password Manager")
