@@ -87,7 +87,6 @@ def create_password_tab(decrypted_passwords):
 root = tk.Tk()
 root.title("Password Manager")
 
-# GUI setup
 website_label = tk.Label(root, text="Website:")
 website_label.pack()
 website_entry = tk.Entry(root)
